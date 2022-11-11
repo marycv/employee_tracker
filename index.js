@@ -3,7 +3,7 @@ const inquirer = require('inquirer');
 // Import and require mysql2
 const mysql = require('mysql2');
 const utils = require('util');
-const { addEmployee, updateRole, addRole, addDepartment } = require('./question');
+// const { addEmployee, updateRole, addRole } = require('./question');
 // Require the questions prompt
 const questions = require('./question');
 
@@ -50,9 +50,6 @@ menu();
 
 
 // View all departments and show department names and department ids
-// db.query('SELECT id, name FROM department', function (err, results) {
-//     console.log(results);
-// });
 async function viewAllDepartments() {
     const departments = await db.query('SELECT id, name FROM department');
     console.table(departments);
@@ -77,14 +74,26 @@ async function viewAllEmployees() {
     menu();
 }
 
-
 // Add a new department
-async function addDepartment( {
-    const result = await db.query(
-        "INSERT INTO department"
-    )
-})
-// prompt the user for the "name" of the department
+async function addDepartment() {
+    // prompt the user for the "name" of the department
+    const answers = await inquirer.prompt([
+        {
+            type: 'input',
+            message: 'What is the name of the department?',
+            name: 'departmentName'
+        }
+    ]);
+
+    console.log(answers);
+
+    await db.query(
+        "INSERT INTO department (name) VALUES (?)"
+        [answers.departmentName]
+    );
+
+    menu();
+}
 
     // THEN run the query
     // INSERT INTO department (name)
