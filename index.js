@@ -46,15 +46,14 @@ async function menu() {
     }
 };
 
-menu();
-
-
 // View all departments and show department names and department ids
 async function viewAllDepartments() {
-    const departments = await db.query('SELECT id, name FROM department');
-    console.table(departments);
+    const result = await db.query('SELECT id, name FROM department');
+    console.table(result);
     menu();
-}
+};
+
+
 
 // View all roles and show title, role id, department, and salary
 async function viewAllRoles() {
@@ -86,26 +85,56 @@ async function addDepartment() {
     ]);
 
     console.log(answers);
-
+    // Run the query to INSERT INTO department (name) VALUES ("Service")
     await db.query(
-        "INSERT INTO department (name) VALUES (?)"
+        "INSERT INTO department (name) VALUES (?)",
         [answers.departmentName]
     );
 
+    console.log(`Added ${answers.departmentName} to the database`)
     menu();
 }
 
-    // THEN run the query
-    // INSERT INTO department (name)
-    //  VALUES ("Sales");
-
-        // THEN ask the user what they want to do next
-
 // Add a new role
-// async function addRole() {
+async function addRole() {
 // Get the existing departments from the 'department' table
+    const department = await db.query("SELECT * FROM department");
 
-    // THEN // prompt the user for the "title", "salary", and "department" for the role 
+    const departmentChoices = department.map( department => ({
+        name: department.name,
+        value: department.id
+    }));
+
+    console.log(departmentChoices);
+
+    // prompt the user for the "title", "salary", and "department" for the role 
+    const answers = await inquirer.prompt([
+        {
+            type: 'input',
+            message: 'What is the name of the role?',
+            name: 'roleName'
+        },
+        {
+            type: 'input',
+            message: 'What is the salary of the role?',
+            name: 'roleSalary'
+        },
+        {
+            type: 'list',
+            message: 'Which department does the role belong to?',
+            name: 'roleDepartment',
+            choices: departmentChoices
+        }
+    ]);
+
+    console.log(answers);
+    menu();
+
+
+}
+
+
+    
 
         // THEN run the query
         // INSERT INTO role (title, salary, department_id)
@@ -118,3 +147,5 @@ async function addDepartment() {
 // Add an employee
 
 // Update an employee role
+
+menu();
