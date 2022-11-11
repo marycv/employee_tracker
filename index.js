@@ -61,7 +61,9 @@ async function viewAllDepartments() {
 
 // View all roles and show title, role id, department, and salary
 async function viewAllRoles() {
-    const result = await db.query('SELECT roles.id AS id, title, department.name AS department, salary FROM roles JOIN department ON roles.department_id = department.id')
+    const result = await db.query(
+        'SELECT roles.id AS id, title, department.name AS department, salary FROM roles JOIN department ON roles.department_id = department.id'
+        )
     console.table(result)
     menu();
 }
@@ -69,14 +71,19 @@ async function viewAllRoles() {
 // View all employees and show employee id, first name, last name, job title, department, salary, and manager
 async function viewAllEmployees() {
     const result = await db.query(
-        "SELECT employee.id AS id, employee.first_name AS first_name, employee.last_name AS last_name, roles.title AS title, department.name AS department, roles.salary AS salary, CONCAT(manager.first_name, ' ', manager.last_name) AS manager FROM employee LEFT JOIN roles on employee.roles_id = roles.id LEFT JOIN department on roles.department_id = department.id LEFT JOIN employee on employee.id = employee.manager_id;")
+        "SELECT employee.id AS id, employee.first_name AS first_name, employee.last_name AS last_name, roles.title AS title, department.name AS department, roles.salary AS salary, CONCAT(m.first_name, ' ', m.last_name) AS manager FROM employee LEFT JOIN roles on employee.roles_id = roles.id LEFT JOIN department on roles.department_id = department.id LEFT JOIN employee m on employee.manager_id = m.id;"
+        )
     console.table(result)
     menu();
 }
 
 
 // Add a new department
-
+async function addDepartment( {
+    const result = await db.query(
+        "INSERT INTO department"
+    )
+})
 // prompt the user for the "name" of the department
 
     // THEN run the query
