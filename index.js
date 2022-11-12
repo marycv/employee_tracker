@@ -81,7 +81,6 @@ async function addDepartment() {
             name: 'departmentName'
         }
     ]);
-
     // Run the query to INSERT INTO department (name) VALUES ("Service")
     await db.query(
         "INSERT INTO department (name) VALUES (?)",
@@ -101,7 +100,6 @@ async function addRole() {
         name: department.name,
         value: department.id
     }));
-
     // prompt the user for the "title", "salary", and "department" for the role 
     const answers = await inquirer.prompt([
         {
@@ -121,7 +119,6 @@ async function addRole() {
             choices: departmentChoices
         }
     ]);
-
     // Run the query to INSERT INTO roles (title, salary, department_id) VALUES (?, ?, ?)
     await db.query(
         "INSERT INTO roles (title, salary, department_id) VALUES (?, ?, ?)",
@@ -142,18 +139,13 @@ async function addEmployee() {
         name: roles.title,
         value: roles.id
     }));
-
-    console.log (roleChoices);
-
     // Get existing employees from the "employee" table
-    const employees = await db.query("SELECT * FROM employee");
+    const employee = await db.query("SELECT * FROM employee");
 
-    const employeeChoices = employee.map( employee => ([
-        name: CONCAT(employee.first_name, ' ', employee.last_name),
-
-    ]))
-
-
+    const managerChoices = employee.map(({id, first_name, last_name}) => ({
+        name: `${first_name} ${last_name}`,
+        value: id
+    }));
     // prompt the user for their "first_name", "last_name", "role", and "manager"
     const answers = await inquirer.prompt([
         {
@@ -176,12 +168,58 @@ async function addEmployee() {
             type: 'list',
             message: "Who is the employee's manager?",
             name: 'manager',
-            choices:
+            choices: managerChoices
         }
+    ]);
+    // Run the query to INSERT INTO employee (first_name, last_name, roles_id, manager_id) VALUES (?, ?, ?, ?)
+    await db.query(
+        "INSERT INTO employee (first_name, last_name, roles_id, manager_id) VALUES (?, ?, ?, ?)",
+        [answers.firstName, answers.lastName, answers.role, answers.manager]
+    );
 
-    ])
-}
+    console.log(`Added ${answers.firstName} ${answers.lastName} to the database`);
+    menu();
+};
 
 // Update an employee role
+async function updateRole() {
+    // Get the existing employees from the "employee" table
+    const employee = await db.query("SELECT * FROM employee");
+
+    const employeeChoices = employee.map(({id, first_name, last_name}) => ({
+        name: `${first_name} ${last_name}`,
+        value: id,
+    }));
+    // Get the existing roles from the "roles" table
+    const roles = await db.query("SELECT * FROM roles");
+
+    const roleChoices = roles.map( roles => ({
+        name: roles.title,
+        value: roles.id
+    }));
+    // prompt the user for the "employeeName" and "employeeRole"
+    const answers = await inquirer.prompt([
+        {
+            type: 'list',
+            message: "Which employee's role do you want to update?",
+            name: 'selectEmployee',
+            choices: employeeChoices
+        },
+        {
+            type: 'list',
+            message: 'Which role do you want to assign the selected employee?',
+            name: 'updateRole',
+            choices: roleChoices
+        }
+    ]);
+    // Run the query to UPDATE employee SET roles_id = answers.updateRole WHERE id = answers.selectEmployee 
+    await db.query(
+        "UPDATE employee SET roles_id = ? WHERE id = ?",
+        [answers.updateRole, answers.selectEmployee]
+    );
+
+    console.log("Updated employee's role");
+    menu();
+}
 
 menu();
